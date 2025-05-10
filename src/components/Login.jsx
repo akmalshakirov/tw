@@ -104,7 +104,7 @@ export default function Login({ onLogin }) {
                                 <ErrorMessage
                                     name='password'
                                     component='div'
-                                    className='text-red-500 text-sm mt-1 text-center'
+                                    className='text-red-500 text-sm mt-1'
                                 />
                             </div>
                             {limit === 0 ? (
@@ -115,7 +115,7 @@ export default function Login({ onLogin }) {
                                 <>
                                     <ReCAPTCHA
                                         ref={recaptchaRef}
-                                        sitekey='6LeczjQrAAAAAM7sE54Sv2eZUvQcC2QhVl-h0NuO'
+                                        sitekey='6Lfm6DQrAAAAAKhCYiAVSk-QqW2yJq3EGzzFvARF'
                                         onChange={() => setCaptchaPassed(true)}
                                         onExpired={() =>
                                             setCaptchaPassed(false)
