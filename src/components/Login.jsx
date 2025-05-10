@@ -1,6 +1,6 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -9,10 +9,27 @@ import { users } from "../data/users";
 export default function Login({ onLogin }) {
     const recaptchaRef = useRef(null);
     const [captchaPassed, setCaptchaPassed] = useState(false);
-    const [limit, setLimit] = useState(5);
+    const [limit, setLimit] = useState(2);
+
+    useEffect(() => {
+        toast.info(
+            "Agar reCAPTCHA ekranga chiqmasa biroz kuting, bu muammo sizning internet tezlikingizdan bo'lishi mumkin",
+            {
+                delay: 777,
+                autoClose: 7777,
+            }
+        );
+        if (limit === 0) {
+            toast.error(
+                "Siz ko'p urunish qildingiz, keyinroq yana urunib ko'ring!"
+            );
+        } else if (limit === 1) {
+            toast.warn("Sizda yana 1 ta urunish qoldi");
+        }
+    }, []);
 
     return (
-        <div className='min-h-screen flex items-center justify-center text-black bg-gradient-to-r from-blue-600 to-green-400 bg-size-200 animate-gradient-x px-4'>
+        <div className='min-h-screen flex items-center justify-center text-black bg-gradient-to-r from-blue-600 to-green-400 bg-size-200 animate-gradient-x px-4 transition-all'>
             <motion.div
                 initial={{ scale: 0.7, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -37,12 +54,11 @@ export default function Login({ onLogin }) {
                             { setSubmitting, setFieldError }
                         ) => {
                             if (!captchaPassed) {
-                                toast.error("CHAPTCHA dan o'ting!");
+                                toast.error("reCaptcha dan o'ting!");
                                 setSubmitting(false);
                                 return;
                             }
 
-                            setLimit(limit - 1);
                             const user = users.find(
                                 (u) =>
                                     u.username && u.password === values.password
@@ -54,10 +70,8 @@ export default function Login({ onLogin }) {
                                 );
                                 onLogin(user);
                             } else {
-                                setFieldError(
-                                    "username",
-                                    "Username yoki parol noto'g'ri"
-                                );
+                                toast.error("Username yoki parol noto'g'ri");
+                                setLimit(limit - 1);
                             }
 
                             setSubmitting(false);
@@ -70,7 +84,8 @@ export default function Login({ onLogin }) {
                                     name='username'
                                     type='text'
                                     placeholder='Username'
-                                    className='w-full border border-gray-300 px-3 py-2 rounded'
+                                    className='w-full border border-gray-300 px-3 py-2 rounded outline-none focus:border-blue-400'
+                                    autoComplete='none'
                                 />
                                 <ErrorMessage
                                     name='username'
@@ -83,19 +98,24 @@ export default function Login({ onLogin }) {
                                     name='password'
                                     type='password'
                                     placeholder='Parol'
-                                    className='w-full border border-gray-300 px-3 py-2 rounded'
+                                    className='w-full border border-gray-300 px-3 py-2 rounded outline-none focus:border-blue-400'
+                                    autoComplete='none'
                                 />
                                 <ErrorMessage
                                     name='password'
                                     component='div'
-                                    className='text-red-500 text-sm mt-1'
+                                    className='text-red-500 text-sm mt-1 text-center'
                                 />
                             </div>
-                            {recaptchaRef ? (
+                            {limit === 0 ? (
+                                <p className='text-center text-red-600'>
+                                    Siz vaqtinchalik blokga tushdingiz
+                                </p>
+                            ) : (
                                 <>
                                     <ReCAPTCHA
                                         ref={recaptchaRef}
-                                        sitekey='6Lf6uTQrAAAAACizi-4l-IPbUT8IsT_H5cOZ4ol9'
+                                        sitekey='6LeczjQrAAAAAM7sE54Sv2eZUvQcC2QhVl-h0NuO'
                                         onChange={() => setCaptchaPassed(true)}
                                         onExpired={() =>
                                             setCaptchaPassed(false)
@@ -103,13 +123,11 @@ export default function Login({ onLogin }) {
                                         className='mx-auto'
                                     />
                                 </>
-                            ) : (
-                                <>reCAPTCHA yuklanmoqda</>
                             )}
                             <motion.button
                                 disabled={limit === 0}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.99 }}
                                 type='submit'
                                 className='w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors cursor-pointer'>
                                 Yuborish
